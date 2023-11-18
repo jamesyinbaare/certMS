@@ -5,6 +5,7 @@ exclude =
     __pycache__,
     .git,
     .venv
+    test
 max-complexity = 10
 ignore =
     E226, E302, E41, E401, W391, F405, F541, F403, W605, E262, E701,
