@@ -1,0 +1,13 @@
+[flake8]
+enable-extensions=G
+max-line-length = 140
+exclude =
+    __pycache__,
+    .git,
+    .venv
+max-complexity = 10
+ignore =
+    E226, E302, E41, E401, W391, F405, F541, F403, W605, E262, E701,
+    W293, E128, E251, C901, G101, G200
+per-file-ignores =
+    *__init__.py: F401

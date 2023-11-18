@@ -4,5 +4,5 @@ app = FastAPI(title="CertMS")
 
 
 @app.get("/")
-def read_root():
-    return {"Hello": "world"}
+def root():
+    return {"Hello": "World"}
