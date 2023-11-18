@@ -1,0 +1,36 @@
+[tool.poetry]
+name = "certms"
+version = "0.1.0"
+description = ""
+authors = ["James Yin <jamesyinbaare@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9,<3.12"
+fastapi = "^0.103.1"
+uvicorn = {extras = ["standard"], version = "^0.23.2"}
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.11.0"
+isort = "^5.12.0"
+pre-commit = "^3.5.0"
+poethepoet = "^0.24.3"
+pytest = "^7.4.3"
+httpx = "^0.25.1"
+flake8 = "^6.1.0"
+
+
+[tool.poetry.group.cli.dependencies]
+typer = {extras = ["all"], version = "^0.9.0"}
+pillow = "^10.1.0"
+python-doctr = {extras = ["tf"], version = "^0.7.0"}
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poe.tasks]
+test         = "pytest"
+start-api ="uvicorn api.app.main:app "
+cli = "python ocr_cli/main.py prepare ./sample ./sample/croppedcr_cli/main.py --help"
