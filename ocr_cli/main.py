@@ -1,3 +1,4 @@
+import shutil
 from io import BytesIO
 from pathlib import Path
 
@@ -49,6 +50,34 @@ def extract(path: Path, output_folder: Path):
             cert_and_student_id = ",".join(res)
             orc_res.write(cert_and_student_id)
             orc_res.write("\n")
+
+
+@app.command()
+def process(src: Path, dest: Path):
+    """
+    Make a copy of the the scanned certificate and rename it as <<CERTIFICATE_ID>>_<<STUDENT_ID>>
+    """
+    with open(src) as orc_res:
+        _ = orc_res.readline()  # read the header line
+        lines = orc_res.readlines()
+        for line in lines:
+            row = line.strip()
+            row = row.split(",")
+            new_file_name = f"{'_'.join(row[:2])}.jpg"
+            rename_cert(row[-1], dest / new_file_name)
+
+
+def rename_cert(src_file, dest_file):
+    """
+    Make a copy of the scanned certificate and save it
+    """
+    try:
+        shutil.copy2(src_file, dest_file)
+        print(f"File '{src_file}' successfully copied to '{dest_file}'.")
+    except FileNotFoundError:
+        print(f"Error: File '{src_file}' not found.")
+    except shutil.SameFileError:
+        print(f"Error: Source and destination files are the same.")
 
 
 def crop_images(input_folder, crop_boxes):
