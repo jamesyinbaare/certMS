@@ -1,10 +1,7 @@
-import shutil
 from io import BytesIO
 from pathlib import Path
 
 import typer
-from doctr.io import DocumentFile
-from doctr.models import ocr_predictor
 from PIL import Image
 
 CERT_ID_CROP_BOX = (
@@ -33,31 +30,25 @@ def version():
 
 @app.command()
 def extract(path: Path, output_folder: Path):
+    """
+    The extract command performs ocr on the images in the given path and out a csv
+    file containing the extracted information for each image
+    """
     cropped_images = crop_images(path, [CERT_ID_CROP_BOX, STUDENT_ID_CROP_BOX])
-    results = []
-    for images in cropped_images:
-        (regions, file_name) = images
-        res = []
-        for img in regions:
-            ocr_result = ocr(img)
-            value = ocr_result["pages"][0]["blocks"][0]["lines"][0]["words"][0]["value"]
-            res.append(value)
-        new_file_name = "_".join(res)
-        rename_cert(file_name, output_folder / f"{new_file_name}.jpg")
-        results.append((res, file_name))
-
-
-def rename_cert(src_file, dest_file):
-    """
-    Make a copy of the scanned certificate and save it
-    """
-    try:
-        shutil.copy2(src_file, dest_file)
-        print(f"File '{src_file}' successfully copied to '{dest_file}'.")
-    except FileNotFoundError:
-        print(f"Error: File '{src_file}' not found.")
-    except shutil.SameFileError:
-        print(f"Error: Source and destination files are the same.")
+    with open(output_folder / "results.csv", "w") as orc_res:
+        orc_res.write("CERT_ID, STUDENT_ID,FILE_PATH")
+        orc_res.write("\n")
+        for images in cropped_images:
+            (regions, file_name) = images
+            res = []
+            for img in regions:
+                ocr_result = ocr(img)
+                value = ocr_result["pages"][0]["blocks"][0]["lines"][0]["words"][0]["value"]
+                res.append(value)
+            res.append(str(file_name))  # add the file name
+            cert_and_student_id = ",".join(res)
+            orc_res.write(cert_and_student_id)
+            orc_res.write("\n")
 
 
 def crop_images(input_folder, crop_boxes):
@@ -83,6 +74,9 @@ def ocr(image):
     """
     Performs ocr and return the results
     """
+    from doctr.io import DocumentFile
+    from doctr.models import ocr_predictor
+
     stream = BytesIO()
     image.save(stream, format="JPEG")
     binary_data = stream.getvalue()
